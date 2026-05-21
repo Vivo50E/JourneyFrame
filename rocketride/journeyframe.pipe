@@ -8,7 +8,12 @@
       "id": "chat_1",
       "provider": "chat",
       "name": "iMessage Inbound (Photon Spectrum)",
-      "config": {},
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "type": "chat",
+        "parameters": {}
+      },
       "ui": {
         "position": {
           "x": 40,

@@ -220,7 +220,7 @@ add_text(s, example, Inches(0.6), Inches(2.1), Inches(6.5), Inches(1.2),
 
 bullets = [
     "✦  Understands relationship type & occasion",
-    "✦  Checks live weather & local vibe",
+    "✦  Adapts to weather, time of day & local vibe",
     "✦  Creates a 3–5 stop itinerary with emotional purpose",
     "✦  Sends the plan + scene images via iMessage",
 ]
@@ -285,12 +285,12 @@ add_text(s, "Tech Stack", Inches(0.7), Inches(0.4), Inches(6), Inches(0.8),
          size=38, bold=True, color=WHITE)
 
 stack = [
-    ("🚀", "RocketRide",        "Core AI orchestration — 6-stage wave pipeline with parallel LLM calls"),
-    ("📡", "Photon Spectrum",   "iMessage delivery layer — inbound/outbound message routing"),
-    ("⚡", "FastAPI Backend",   "Python webhook server connecting Photon → RocketRide pipeline"),
-    ("🌦", "Weather API",       "Real-time conditions for context enrichment"),
-    ("🖼", "Image Generation",  "Cinematic scene image prompts per itinerary stop"),
-    ("🧠", "Claude / GPT-4o",   "LLM powering intent parsing, narration, and prompt generation"),
+    ("🚀", "RocketRide",           "Core AI orchestration — 6-stage wave pipeline with parallel LLM calls"),
+    ("📡", "Photon Spectrum",      "iMessage delivery layer — inbound/outbound message routing"),
+    ("⚡", "FastAPI Backend",      "Python webhook server connecting Photon → RocketRide pipeline"),
+    ("🧠", "Claude Sonnet 4.6",   "LLM powering all 6 pipeline stages via RocketRide wave agent"),
+    ("🖼", "gpt-image-2",          "Cinematic travel poster generation — one image per full itinerary"),
+    ("📦", "spectrum-ts",          "TypeScript SDK for Photon — persistent Socket.IO iMessage connection"),
 ]
 
 for i, (icon, name, desc) in enumerate(stack):

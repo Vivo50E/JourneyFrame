@@ -13,7 +13,7 @@ Text a message like *"My friend Sarah is visiting Seattle tomorrow. Plan a cozy 
 
 **Output:**
 
-![JourneyFrame itinerary poster](demo/image.png)
+![JourneyFrame Seattle itinerary](demo/journey-scene.png)
 
 ---
 

@@ -1,0 +1,60 @@
+{
+  "name": "JourneyFrame Pipeline",
+  "description": "Relationship-aware experiential journey planner — 6-stage AI pipeline",
+  "components": [
+    {
+      "id": "source",
+      "provider": "chat",
+      "config": {},
+      "name": "User Input"
+    },
+    {
+      "id": "llm",
+      "provider": "llm_anthropic",
+      "config": {
+        "profile": "claude-sonnet-4-6",
+        "claude-sonnet-4-6": {
+          "apikey": "${ROCKETRIDE_ANTHROPIC_APIKEY}"
+        }
+      },
+      "name": "Claude Sonnet 4.6"
+    },
+    {
+      "id": "memory",
+      "provider": "memory_internal",
+      "config": {},
+      "name": "Agent Memory"
+    },
+    {
+      "id": "agent",
+      "provider": "agent_rocketride",
+      "config": {
+        "agent_description": "JourneyFrame is a relationship-aware experiential journey planner. It transforms a casual user message into a full outing itinerary with cinematic image prompts.",
+        "instructions": [
+          "You are JourneyFrame — a relationship-aware experiential journey agent. When the user sends a trip request, execute the following 6 stages in sequence and return the final JSON.",
+          "STAGE 1 — Intent Parser: Extract from the user message: location, occasion, relationship (friend/couple/family), vibe/mood, time_window, constraints. Output as JSON.",
+          "STAGE 2 — Context Enrichment: Add weather_context (one sentence), user_preferences (budget/style/diet), relationship_context (emphasize friend/couple/family atmosphere), local_recommendation_context (high-level local tips).",
+          "STAGE 3 — Itinerary Planner: Generate 3-5 stops. Each stop: title, time, location, reason, duration, emotional_purpose. Make stops cozy, relationship-aware, and weather-appropriate.",
+          "STAGE 4 — Experience Narrator: Turn the itinerary into 2-4 warm short iMessage-style messages (max 60 chars each). First-person/second-person tone. Use emoji.",
+          "STAGE 5 — Image Prompt Generator: For each stop generate one English cinematic image prompt: location feel + mood + weather + light + relationship. Style: cinematic, warm tones, photorealistic.",
+          "STAGE 6 — Final Response Composer: Return a single JSON with this exact structure: {\"messages\": [{\"type\": \"text\", \"text\": \"...\"}], \"image_prompts\": [\"...\"]}. messages come from Stage 4, image_prompts from Stage 5. Only output the final JSON, nothing else."
+        ],
+        "max_waves": 12
+      },
+      "input": [{"from": "source", "lane": "questions"}],
+      "control": [
+        {"classType": "llm", "from": "llm"},
+        {"classType": "memory", "from": "memory"}
+      ],
+      "name": "JourneyFrame Agent"
+    },
+    {
+      "id": "output",
+      "provider": "response_answers",
+      "config": {},
+      "input": [{"from": "agent", "lane": "answers"}],
+      "name": "Response"
+    }
+  ],
+  "source": "source"
+}

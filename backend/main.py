@@ -4,7 +4,7 @@ import os
 
 import anthropic
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -18,7 +18,7 @@ from pipeline import (
     response_composer,
 )
 
-load_dotenv(override=True)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"), override=True)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("journeyframe")
@@ -27,6 +27,7 @@ app = FastAPI(title="JourneyFrame Backend")
 
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+USE_ROCKETRIDE = bool(os.environ.get("ROCKETRIDE_APIKEY", "").strip())
 
 
 class WebhookPayload(BaseModel):
@@ -35,38 +36,49 @@ class WebhookPayload(BaseModel):
     conversation_id: str | None = None
 
 
+async def run_rocketride_pipeline(text: str) -> dict:
+    """Run the full pipeline via RocketRide SDK."""
+    from rocketride_runner import run
+    return await run(text)
+
+
+async def run_direct_pipeline(text: str) -> dict:
+    """Run the full pipeline with direct Claude API calls (fallback)."""
+    client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+
+    log.info("[1/6] Intent Parser")
+    intent = await intent_parser.run(client, text)
+    log.info("Intent: %s", intent)
+
+    log.info("[2/6] Context Enricher")
+    context = await context_enricher.run(client, intent)
+
+    log.info("[3/6] Itinerary Planner")
+    itinerary = await itinerary_planner.run(client, context)
+
+    log.info("[4+5/6] Narrator & Image Prompt Generator (parallel)")
+    narrator_result, image_result = await asyncio.gather(
+        experience_narrator.run(client, itinerary),
+        image_prompt_generator.run(client, itinerary),
+    )
+
+    log.info("[6/6] Response Composer")
+    return await response_composer.run(client, narrator_result, image_result)
+
+
 @app.post("/webhook")
 async def webhook(payload: WebhookPayload):
     log.info("Received message from %s: %s", payload.sender, payload.text)
 
-    client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
-
     try:
-        # Stage 1 — Intent Parser (RocketRide: prompt → llm_anthropic)
-        log.info("[1/6] Intent Parser")
-        intent = await intent_parser.run(client, payload.text)
-        log.info("Intent: %s", intent)
+        if USE_ROCKETRIDE:
+            log.info("[RocketRide] Running pipeline via RocketRide SDK")
+            final = await run_rocketride_pipeline(payload.text)
+        else:
+            log.info("[Direct] Running pipeline with direct Claude API calls")
+            final = await run_direct_pipeline(payload.text)
 
-        # Stage 2 — Context Enrichment (RocketRide: prompt → llm_anthropic)
-        log.info("[2/6] Context Enricher")
-        context = await context_enricher.run(client, intent)
-
-        # Stage 3 — Itinerary Planner (RocketRide: prompt → llm_anthropic)
-        log.info("[3/6] Itinerary Planner")
-        itinerary = await itinerary_planner.run(client, context)
-
-        # Stages 4 & 5 run concurrently — Narrator + Image Prompt Generator
-        log.info("[4+5/6] Narrator & Image Prompt Generator (parallel)")
-        narrator_result, image_result = await asyncio.gather(
-            experience_narrator.run(client, itinerary),
-            image_prompt_generator.run(client, itinerary),
-        )
-
-        # Stage 6 — Final Response Composer
-        log.info("[6/6] Response Composer")
-        final = await response_composer.run(client, narrator_result, image_result)
-
-        # Stage 7 — Image Generation (gpt-image-1, parallel to response)
+        # Stage 7 — Image Generation (always runs if OpenAI key available)
         if OPENAI_API_KEY:
             prompts = final.get("image_prompts", [])
             log.info("[7] Generating %d image(s) with gpt-image-2", min(len(prompts), 2))
@@ -84,4 +96,7 @@ async def webhook(payload: WebhookPayload):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "mode": "rocketride" if USE_ROCKETRIDE else "direct",
+    }

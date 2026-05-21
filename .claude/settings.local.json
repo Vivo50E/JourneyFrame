@@ -3,7 +3,10 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:unsplash.com)",
-      "WebFetch(domain:images.unsplash.com)"
+      "WebFetch(domain:images.unsplash.com)",
+      "WebFetch(domain:docs.rocketride.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

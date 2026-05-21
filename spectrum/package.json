@@ -1,0 +1,22 @@
+{
+  "name": "journeyframe-spectrum",
+  "version": "1.0.0",
+  "description": "Photon Spectrum iMessage gateway for JourneyFrame",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  }
+}

@@ -2,38 +2,40 @@ import json
 import anthropic
 from .utils import extract_json
 
-SYSTEM_PROMPT = """你是一个场景图像提示生成器。
-输入是行程 JSON。
-为每个主要 stop 生成一条 cinematic 风格的英文图像 prompt。
-只输出 JSON，不要任何额外解释。"""
+SYSTEM_PROMPT = """You are a travel poster prompt generator for gpt-image-2.
+Given a trip itinerary JSON, generate ONE English prompt that will produce a beautiful travel guide poster.
+Output strict JSON only, no extra explanation."""
 
-INSTRUCTIONS = """输出格式（严格 JSON）：
+INSTRUCTIONS = """Output format (strict JSON):
 {
   "image_prompts": [
     {
-      "stop_title": "行程点名称",
-      "prompt": "English cinematic image prompt..."
+      "stop_title": "Full Itinerary Poster",
+      "prompt": "English poster prompt..."
     }
   ]
 }
 
-要求：
-- Prompt 必须用英文（用于图像生成模型）
-- 包含：地点感、情绪、天气、光线、人物关系
-- 风格：cinematic, warm tones, photorealistic
-- 示例："Two friends sitting by a misty Seattle coffee shop window, soft rain outside, warm amber lighting, intimate conversation, cinematic composition, 35mm film look"
-- 为每个 stop 生成一条"""
+Requirements for the prompt:
+- Design a single travel guide poster that captures the entire itinerary
+- Style: modern travel editorial poster, clean layout, warm color palette, lifestyle photography collage feel
+- Include: city name prominently, 3-4 location names as visual labels, time indicators (e.g. 2PM, 4PM), mood/weather atmosphere
+- Render readable English text for location names and times — gpt-image-2 handles text well
+- Add subtle map/route line connecting the stops
+- Overall vibe should match the relationship and mood of the trip
+- Example structure: "A stylish travel poster for [City], featuring [Stop1] at 2PM, [Stop2] at 4PM, [Stop3] at 6PM. Warm rainy-day mood, soft amber and teal color palette, editorial photography style with overlaid location labels and a subtle route line. Modern travel guide aesthetic."
+"""
 
 
 async def run(client: anthropic.AsyncAnthropic, itinerary: dict) -> dict:
     response = await client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1024,
+        model="claude-haiku-4-5-20251001",
+        max_tokens=512,
         system=SYSTEM_PROMPT,
         messages=[
             {
                 "role": "user",
-                "content": f"{INSTRUCTIONS}\n\n行程 JSON：\n{json.dumps(itinerary, ensure_ascii=False, indent=2)}",
+                "content": f"{INSTRUCTIONS}\n\nItinerary JSON:\n{json.dumps(itinerary, ensure_ascii=False, indent=2)}",
             }
         ],
     )

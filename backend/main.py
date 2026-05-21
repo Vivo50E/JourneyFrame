@@ -11,13 +11,14 @@ from pydantic import BaseModel
 from pipeline import (
     context_enricher,
     experience_narrator,
+    image_generator,
     image_prompt_generator,
     intent_parser,
     itinerary_planner,
     response_composer,
 )
 
-load_dotenv()
+load_dotenv(override=True)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("journeyframe")
@@ -25,6 +26,7 @@ log = logging.getLogger("journeyframe")
 app = FastAPI(title="JourneyFrame Backend")
 
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 
 class WebhookPayload(BaseModel):
@@ -60,9 +62,17 @@ async def webhook(payload: WebhookPayload):
             image_prompt_generator.run(client, itinerary),
         )
 
-        # Stage 6 — Final Response Composer (RocketRide: prompt → llm_anthropic)
+        # Stage 6 — Final Response Composer
         log.info("[6/6] Response Composer")
         final = await response_composer.run(client, narrator_result, image_result)
+
+        # Stage 7 — Image Generation (gpt-image-1, parallel to response)
+        if OPENAI_API_KEY:
+            prompts = final.get("image_prompts", [])
+            log.info("[7] Generating %d image(s) with gpt-image-2", min(len(prompts), 2))
+            image_b64_list = await image_generator.run(OPENAI_API_KEY, prompts)
+            final["image_b64"] = image_b64_list
+            log.info("[7] Generated %d image(s)", len(image_b64_list))
 
         log.info("Pipeline complete. Messages: %d", len(final.get("messages", [])))
         return JSONResponse(content=final)

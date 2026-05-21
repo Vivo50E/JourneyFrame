@@ -20,14 +20,15 @@ INSTRUCTIONS = """输出格式（严格 JSON）：
 要求：
 - 用第一/第二人称，像朋友说话
 - 轻松、情感化、有关系感
-- 分 2-4 条简短消息，每条不超过 80 字
-- 可用 emoji 增加温度感"""
+- 分 2-4 条消息，每条严格不超过 60 字
+- 可用 emoji 增加温度感
+- JSON 字符串内不要有换行符"""
 
 
 async def run(client: anthropic.AsyncAnthropic, itinerary: dict) -> dict:
     response = await client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=2048,
         system=SYSTEM_PROMPT,
         messages=[
             {

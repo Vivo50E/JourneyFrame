@@ -69,14 +69,14 @@
           "",
           "=== STAGE 6: Response Composer ===",
           "Read 'narrator' and 'image_prompts' from memory. Compose the final response.",
-          "Output strict JSON: {\"messages\":[{\"type\":\"text\",\"text\":\"...\"},...,{\"type\":\"text\",\"text\":\"如果你想要我帮你生成这些场景图，只需回复「生成图片」✨\"}],\"image_prompts\":[\"...\",\"...\"]}",
+          "Output strict JSON: {\"messages\":[{\"type\":\"text\",\"text\":\"...\"},...,{\"type\":\"text\",\"text\":\"Want me to generate travel scene images? Just reply 'generate images' ✨\"}],\"image_prompts\":[\"...\",\"...\"]}",
           "",
           "CRITICAL RULES:",
           "- Always store intermediate results in memory after each stage before proceeding",
           "- In wave 4, plan BOTH stage 4 and stage 5 memory reads + writes in the same wave (parallel execution)",
           "- Only output the final Stage 6 JSON as your answer — do not output intermediate stage results",
           "- If location is unknown, default to Seattle",
-          "- Always write in Chinese for messages, English for image prompts"
+          "- Always write in English for all messages and image prompts"
         ],
         "max_waves": 12,
         "parameters": {}
@@ -188,5 +188,5 @@
     "y": 0,
     "zoom": 1
   },
-  "project_id": "ae715270-97db-427c-8942-968fc4408775"
+  "project_id": "d8d23764-1646-4bd7-af80-9c98b951a8b6"
 }

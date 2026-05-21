@@ -3,21 +3,21 @@ import anthropic
 from .utils import extract_json
 
 
-SYSTEM_PROMPT = """你是一个旅行海报图像提示词生成器。
-根据行程 JSON，生成一条能让 AI 图像模型生成旅行攻略海报的英文 prompt。
-只输出 JSON，不要额外解释。"""
+SYSTEM_PROMPT = """You are a travel poster image prompt generator.
+Given an itinerary JSON, generate one English prompt that will produce a cinematic travel poster.
+Output strict JSON only — no extra explanation."""
 
-INSTRUCTIONS = """输出格式（严格 JSON）：
+INSTRUCTIONS = """Output format (strict JSON):
 {
-  "poster_prompt": "英文 prompt..."
+  "poster_prompt": "English prompt..."
 }
 
-要求：
-- 描述一张旅游攻略海报风格的图片
-- 包含城市名、几个地点名、时间线概念、照片拼贴感
-- 风格：travel guide poster, collage layout, warm colors, editorial photography style
-- 提到具体的地点名（英文）和氛围词
-- 不要让 AI 渲染大量文字，重点在视觉构图和氛围"""
+Requirements:
+- Describe a travel guide poster style image
+- Include the city name, 3–4 location names as visual labels, timeline concept, collage feel
+- Style: modern travel editorial poster, warm color palette, subtle route line connecting stops
+- Reference specific venue names and atmosphere words
+- Avoid rendering heavy text — focus on visual composition and mood"""
 
 
 async def run(client: anthropic.AsyncAnthropic, itinerary: dict, context: dict) -> str:
@@ -33,7 +33,7 @@ async def run(client: anthropic.AsyncAnthropic, itinerary: dict, context: dict) 
         system=SYSTEM_PROMPT,
         messages=[{
             "role": "user",
-            "content": f"{INSTRUCTIONS}\n\n行程摘要：\n{json.dumps(combined, ensure_ascii=False)}",
+            "content": f"{INSTRUCTIONS}\n\nItinerary summary:\n{json.dumps(combined, ensure_ascii=False)}",
         }],
     )
     result = extract_json(response.content[0].text.strip())

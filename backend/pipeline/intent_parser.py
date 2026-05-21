@@ -1,18 +1,18 @@
 import anthropic
 from .utils import extract_json
 
-SYSTEM_PROMPT = """你是一个旅行出行理解器。
-从用户的一句话里抽取结构化意图。
-只输出 JSON，不要任何额外解释。"""
+SYSTEM_PROMPT = """You are a travel intent parser.
+Extract structured intent from the user's message.
+Output strict JSON only — no extra explanation."""
 
-INSTRUCTIONS = """输出格式（严格 JSON）：
+INSTRUCTIONS = """Output format (strict JSON):
 {
-  "location": "城市/地点，若未知填 unknown",
-  "occasion": "场合描述",
-  "relationship": "关系类型，如 朋友/情侣/家人",
-  "vibe": "氛围/情绪，如 温馨/活力/放松",
-  "time_window": "时间区间，如 明天下午/周末上午",
-  "constraints": "任何约束，如 雨天/预算有限/不吃辣，若无填 none"
+  "location": "city/area, or 'unknown' if not mentioned",
+  "occasion": "description of the occasion",
+  "relationship": "relationship type, e.g. friend/couple/family",
+  "vibe": "mood/atmosphere, e.g. cozy/energetic/romantic/relaxed",
+  "time_window": "time window, e.g. tomorrow afternoon/this weekend morning",
+  "constraints": "any constraints, e.g. rainy day/budget-friendly/vegetarian, or 'none'"
 }"""
 
 
@@ -21,7 +21,7 @@ async def run(client: anthropic.AsyncAnthropic, user_message: str) -> dict:
         model="claude-sonnet-4-6",
         max_tokens=512,
         system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": f"{INSTRUCTIONS}\n\n用户输入：{user_message}"}],
+        messages=[{"role": "user", "content": f"{INSTRUCTIONS}\n\nUser input: {user_message}"}],
     )
     text = response.content[0].text.strip()
     return extract_json(text)

@@ -11,11 +11,11 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // Warm messages sent while AI is thinking (one per ~8s)
 const THINKING_MESSAGES = [
-  "正在理解你的需求，马上开始规划 🧠",
-  "在分析天气、氛围和关系上下文... ☁️",
-  "已经有几个不错的想法了，正在细化行程 ✨",
-  "快好了！正在帮你把每一站都写得有温度 💬",
-  "最后一步，在为你生成专属场景图... 🖼️",
+  "Understanding your request, starting to plan now 🧠",
+  "Analyzing weather, vibe, and relationship context... ☁️",
+  "Got some great ideas, refining your itinerary ✨",
+  "Almost there! Writing each stop with warmth 💬",
+  "Final step — generating your travel poster... 🖼️",
 ];
 
 async function sendThinkingMessages(
@@ -52,7 +52,7 @@ async function main() {
     await space.responding(async () => {
       try {
         // Immediate acknowledgment
-        await space.send("收到！让我帮你规划这次出行 🗺️");
+        await space.send("Got it! Let me plan your outing 🗺️");
         await delay(600);
 
         const signal = { done: false };
@@ -84,7 +84,7 @@ async function main() {
         // Send generated images
         console.log(`[spectrum] image_b64 count: ${data.image_b64?.length ?? 0}, size: ${data.image_b64?.[0]?.length ?? 0} chars`);
         if (data.image_b64?.length) {
-          await space.send("这是我为你想象的场景画面 🎨");
+          await space.send("Here's the travel poster I imagined for your journey 🎨");
           await delay(500);
           for (const b64 of data.image_b64 as string[]) {
             const buf = Buffer.from(b64, "base64");
@@ -96,14 +96,14 @@ async function main() {
             .slice(0, 2)
             .map((p: string, i: number) => `🖼 Scene ${i + 1}: ${p}`)
             .join("\n\n");
-          await space.send(`这是我为你想象的场景：\n\n${preview}`);
+          await space.send(`Here's the scene I imagined for your journey:\n\n${preview}`);
         }
 
         console.log(`[spectrum] ✓ Replied to ${sender}`);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         console.error("[spectrum] Error:", msg);
-        await space.send("哎，规划途中出了点问题，再试一次吧 🙏");
+        await space.send("Something went wrong while planning — please try again 🙏");
       }
     });
   }

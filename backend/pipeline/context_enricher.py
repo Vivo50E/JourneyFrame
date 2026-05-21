@@ -2,18 +2,18 @@ import json
 import anthropic
 from .utils import extract_json
 
-SYSTEM_PROMPT = """你是一个智能行程补全助手。
-输入是 Intent Parser 的 JSON 结果。
-在其基础上补充天气、用户偏好、关系上下文、本地推荐要点。
-只输出 JSON，不要任何额外解释。"""
+SYSTEM_PROMPT = """You are an intelligent trip context enricher.
+Input is the Intent Parser JSON result.
+Enrich it with weather context, user preferences, relationship tone, and local recommendation notes.
+Output strict JSON only — no extra explanation."""
 
-INSTRUCTIONS = """在原有字段基础上，新增以下字段并输出完整 JSON：
+INSTRUCTIONS = """Add the following fields to the existing JSON and output the complete object:
 {
-  ...(原字段保留),
-  "weather_context": "一句话天气描述，如：明天下午西雅图有小雨，适合室内+咖啡",
-  "user_preferences": "假设性用户偏好：预算、风格、饮食、活动偏好",
-  "relationship_context": "关系氛围提示，强调是朋友/情侣/家人的感受",
-  "local_recommendation_context": "当地高层推荐要点，简短描述"
+  ...(all original fields retained),
+  "weather_context": "one-line weather description, e.g. 'Light rain expected in Seattle tomorrow afternoon — great for indoor-outdoor mix'",
+  "user_preferences": "assumed user preferences: budget style, dietary, activity type",
+  "relationship_context": "emotional tone for this relationship type, e.g. 'warm and nostalgic for reuniting friends'",
+  "local_recommendation_context": "key local character notes for this city/area"
 }"""
 
 
@@ -25,7 +25,7 @@ async def run(client: anthropic.AsyncAnthropic, intent: dict) -> dict:
         messages=[
             {
                 "role": "user",
-                "content": f"{INSTRUCTIONS}\n\n输入 JSON：\n{json.dumps(intent, ensure_ascii=False, indent=2)}",
+                "content": f"{INSTRUCTIONS}\n\nInput JSON:\n{json.dumps(intent, ensure_ascii=False, indent=2)}",
             }
         ],
     )

@@ -2,27 +2,27 @@ import json
 import anthropic
 from .utils import extract_json
 
-SYSTEM_PROMPT = """你是一个旅程叙事作家。
-输入是行程 JSON。
-把行程写成温暖、自然、像朋友在 iMessage 里发给你的消息。
-只输出 JSON，不要任何额外解释。"""
+SYSTEM_PROMPT = """You are an experiential journey narrator.
+Input is an itinerary JSON.
+Write warm, natural iMessage-style messages describing the plan — like a friend texting you.
+Output strict JSON only — no extra explanation."""
 
-INSTRUCTIONS = """输出格式（严格 JSON）：
+INSTRUCTIONS = """Output format (strict JSON):
 {
   "messages": [
-    "第一条消息内容（介绍整体行程或开场）",
-    "第二条消息（介绍第一两个 stop）",
-    "第三条消息（介绍后续 stop）",
-    "第四条消息（结尾，温馨收尾或邀请）"
+    "First message (introduce the overall plan or open warmly)",
+    "Second message (cover the first one or two stops)",
+    "Third message (cover the remaining stops)",
+    "Fourth message (warm close or invitation)"
   ]
 }
 
-要求：
-- 用第一/第二人称，像朋友说话
-- 轻松、情感化、有关系感
-- 分 2-4 条消息，每条严格不超过 60 字
-- 可用 emoji 增加温度感
-- JSON 字符串内不要有换行符"""
+Requirements:
+- Use first/second person, friendly tone
+- Warm, emotional, relationship-aware
+- 2–4 messages total, each strictly under 160 characters
+- Emojis welcome for warmth
+- No newline characters inside JSON strings"""
 
 
 async def run(client: anthropic.AsyncAnthropic, itinerary: dict) -> dict:
@@ -33,7 +33,7 @@ async def run(client: anthropic.AsyncAnthropic, itinerary: dict) -> dict:
         messages=[
             {
                 "role": "user",
-                "content": f"{INSTRUCTIONS}\n\n行程 JSON：\n{json.dumps(itinerary, ensure_ascii=False, indent=2)}",
+                "content": f"{INSTRUCTIONS}\n\nItinerary JSON:\n{json.dumps(itinerary, ensure_ascii=False, indent=2)}",
             }
         ],
     )

@@ -14,7 +14,7 @@ async def run(
     # Invite user to generate images as the last message
     messages.append({
         "type": "text",
-        "text": "如果你想要我帮你生成这些场景图，只需回复「生成图片」✨",
+        "text": "Want me to generate travel scene images for this journey? Just reply \"generate images\" ✨",
     })
 
     image_prompts = [
